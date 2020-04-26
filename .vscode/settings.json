@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "/home/ed/Documents/Projects/elpromediador-upc/env/bin/python3.7",
+    "python.formatting.autopep8Args": ["--max-line-length=1000"],
+    "debug.openDebug": "neverOpen"
+}
