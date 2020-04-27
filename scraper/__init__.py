@@ -12,7 +12,7 @@ URL_UPC_INTRANET_NOTAS_INTERMEDIARIO = 'https://matricula.upc.edu.pe/ConsultaNot
 URL_UPC_INTRANET_NOTAS_PERIODO = 'https://matricula.upc.edu.pe/ConsultaNotas/Curso/Inicio'
 
 
-def get_consolidado(codigo, contrasena, modalidad, anio_ingreso):
+def get_consolidado(codigo, contrasena):
     # region Login UPC
     # Sesion
     session = cfscrape.create_scraper()
@@ -52,13 +52,14 @@ def get_consolidado(codigo, contrasena, modalidad, anio_ingreso):
     consolidado['ciclos'] = []
     creditos_cuenta_total = 0
     # Iterar a partir del anio de inicio hasta el anio actual
+    anio_ingreso = codigo[1:5]
     anio_actual = consolidado['ciclo_actual'] // 100
     for anio in range(anio_ingreso, anio_actual + 1):
         for mes in range(3):
             periodo = anio * 100 + mes
             print(periodo)
             # Obtener notas por por periodo
-            html = session.post(URL_UPC_INTRANET_NOTAS_PERIODO, data={'CodModalidad': modalidad, 'CodPeriodo': periodo})
+            html = session.post(URL_UPC_INTRANET_NOTAS_PERIODO, data={'CodPeriodo': periodo})
             soup = BeautifulSoup(html.text, features='html.parser')
             # Validar que se matriculo en el ciclo
             if not soup.find('span', {'id': 'spnCiclo'}):
