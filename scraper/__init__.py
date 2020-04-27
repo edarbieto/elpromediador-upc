@@ -52,7 +52,7 @@ def get_consolidado(codigo, contrasena):
     consolidado['ciclos'] = []
     creditos_cuenta_total = 0
     # Iterar a partir del anio de inicio hasta el anio actual
-    anio_ingreso = codigo[1:5]
+    anio_ingreso = int(codigo[1:5])
     anio_actual = consolidado['ciclo_actual'] // 100
     for anio in range(anio_ingreso, anio_actual + 1):
         for mes in range(3):

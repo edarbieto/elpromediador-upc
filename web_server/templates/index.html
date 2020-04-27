@@ -1,0 +1,38 @@
+{% extends 'base.html' %} {% block title %}
+<title>El Promediador</title>
+{% endblock %} {% block container %}
+<div class="container-fluid d-flex vh-100 vw-100">
+  <div class="row w-100 mx-auto justify-content-center align-self-center">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+      <div class="card">
+        <div class="card-body">
+          <form action="/notas" method="POST">
+            <h5 class="card-title text-center">Credenciales UPC</h5>
+            <div class="form-group">
+              <label for="codigo">Código</label>
+              <input
+                type="text"
+                name="codigo"
+                id="codigo"
+                class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="contrasena">Contraseña</label>
+              <input
+                type="password"
+                name="contrasena"
+                id="contrasena"
+                class="form-control"
+              />
+            </div>
+            <button class="btn btn-primary btn-block" id="btnLoginUPC">
+              Obtener notas
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
