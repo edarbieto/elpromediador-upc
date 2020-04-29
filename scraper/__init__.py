@@ -122,6 +122,6 @@ def get_consolidado(codigo, contrasena):
 
 
 def get_consolidado_dummy(codigo, contrasena):
-    with open('test.json', 'r') as f:
+    with open('test.json', 'r', encoding='utf-8') as f:
         r = json.load(f)
     return r

@@ -11,13 +11,30 @@
       rel="stylesheet"
       href="%% url_for('static', filename='css/sweetalert2.min.css') %%"
     />
+    <link
+      rel="shortcut icon"
+      href="%% url_for('static', filename='img/logo.png') %%"
+      type="image/x-icon"
+    />
+    <style>
+      @font-face {
+        font-family: logo-font;
+        src: url(%% url_for('static', filename='font/Russian.ttf') %%);
+      }
+    </style>
     <title>El Promediador</title>
   </head>
   <body>
     <div id="app" class="vh-100">
       <nav class="navbar navbar-dark bg-primary">
-        <a href="/" class="navbar-brand mx-md-0 mx-auto">El Promediador</a>
-        <form class="form-inline mx-md-0 mx-auto" autocomplete="off">
+        <a href="/" class="navbar-brand mx-md-0 mx-auto my-2 my-md-0">
+          <img
+            src="%% url_for('static', filename='img/logo.png') %%"
+            alt="logo"
+            width="35px"
+          />
+        </a>
+        <form class="form-inline mr-md-0 mx-auto" autocomplete="off">
           <div class="input-group input-group-sm">
             <input
               type="text"
@@ -48,7 +65,9 @@
       </nav>
       <div v-if="consolidado">
         <div class="container">
-          <div class="row my-4 text-light bg-danger p-3 rounded shadow">
+          <div
+            class="row my-4 align-items-center text-light bg-danger p-3 rounded shadow"
+          >
             <div class="col-12 col-sm-8 col-lg-10">
               <div class="">
                 <h5 class="font-weight-bold" id="nombres">
@@ -79,7 +98,7 @@
                 <div class="card" v-for="(curso, index) in cicloActual.cursos">
                   <div class="card-header p-1">
                     <button
-                      class="btn btn-link text-left"
+                      class="btn btn-block btn-link text-left"
                       data-toggle="collapse"
                       :data-target="`#collapseCurso${index}`"
                     >
@@ -101,9 +120,9 @@
                             <tr>
                               <th>Tipo</th>
                               <th>Evaluación</th>
-                              <th>N°</th>
-                              <th>Peso</th>
-                              <th>Nota</th>
+                              <th class="text-center">N°</th>
+                              <th class="text-center">Peso</th>
+                              <th class="text-center">Nota</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -188,10 +207,10 @@
         <div class="container">
           <div class="row justify-content-center my-5">
             <div class="col d-flex justify-content-center">
-              <div class="card border-primary" style="max-width: 18rem;">
+              <div class="card border-primary" style="max-width: 20em;">
                 <div class="card-body text-primary">
-                  <h5 class="card-title text-center">El Promediador</h5>
-                  <p class="card-text text-justify">
+                  <h5 class="card-title text-center" style="font-family: logo-font; font-size: 45px;">El Promediador</h5>
+                  <p class="card-text text-center">
                     Solo necesitas ingresar tu código de usuario UPC y
                     contraseña para obtener tus notas y promediarlas
                     automáticamente.
@@ -202,6 +221,26 @@
           </div>
         </div>
       </div>
+      <footer
+        class="footer"
+        style="
+          position: absolute;
+          bottom: 0;
+          width: 100vw;
+          height: 45px;
+          line-height: 45px;
+          background-color: #e8e8e8;
+          font-size: 85%;
+          display: flex;
+          justify-content: center;
+        "
+      >
+        <!-- <div class="container"> -->
+          <span class="text-muted">Hecho con ❤️ por BicaStudios</span>
+          <!-- <br> -->
+          <!-- <span class="text-muted">Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a></span> -->
+        <!-- </div> -->
+      </footer>
     </div>
     <script src="%% url_for('static', filename='js/jquery-3.4.1.min.js') %%"></script>
     <script src="%% url_for('static', filename='js/popper.min.js') %%"></script>
@@ -255,7 +294,9 @@
               this.cicloActual = this.consolidado.ciclos.find(
                 (ciclo) => ciclo.id == this.idCicloActual
               );
-              this.ciclos = this.consolidado.ciclos.map((ciclo) => ciclo.id);
+              this.ciclos = this.consolidado.ciclos
+                .map((ciclo) => ciclo.id)
+                .reverse();
               swal.close();
             });
           },
