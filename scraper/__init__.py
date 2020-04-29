@@ -45,7 +45,7 @@ def get_consolidado(codigo, contrasena):
     # Construir consolidado
     consolidado = {}
     consolidado['codigo'] = codigo
-    consolidado['nombre'] = soup.find('span', {'id': 'spnAlumno_MatriculaActual1'}).text.replace('\n', '').strip().split('-')[1]
+    consolidado['nombre'] = soup.find('span', {'id': 'spnAlumno_MatriculaActual1'}).text.replace('\n', '').strip().split('-')[1].strip()
     consolidado['carrera'] = soup.find('span', {'id': 'spnTipoIngreso'}).text.replace(':', '').replace('\n', '').strip()
     consolidado['promedio_ponderado'] = 0.0
     consolidado['ciclo_actual'] = int(soup.find('span', {'id': 'spnCiclo'}).text.replace(':', '').replace('\n', '').strip())
@@ -86,6 +86,7 @@ def get_consolidado(codigo, contrasena):
                 curso['nombre'] = soup_curso.findAll('tr')[2].findAll('td')[1].text.replace('\n', '').strip()
                 curso['creditos'] = int(soup_curso.findAll('tr')[2].findAll('td')[3].text.replace(' ', '').replace('\n', '').strip())
                 curso['promedio'] = 0.0
+                curso['estado'] = 'CERRADO'
                 curso['notas'] = []
                 soup_notas = soup_curso.findAll('tr')[5:-1]
                 # Iterar por cada nota
@@ -100,6 +101,10 @@ def get_consolidado(codigo, contrasena):
                     nota_str = soup_nota.findAll('td')[4].text.replace(' ', '').replace('\n', '').strip()
                     nota['nota'] = float(nota_str if nota_str.replace('.', '').isnumeric() else 0.0)
                     nota['obs'] = (nota_str if not nota_str.replace('.', '').isnumeric() else None) if nota_str != '' else 'P'
+                    if nota['obs'] == 'RET':
+                        curso['estado'] = 'RETIRADO'
+                    if nota['obs'] == 'P':
+                        curso['estado'] = 'CURSANDO'
                     curso['promedio'] += nota['peso'] * nota['nota']
                     curso['notas'].append(nota)
                 # Calcular promedio del curso
@@ -114,3 +119,9 @@ def get_consolidado(codigo, contrasena):
     consolidado['promedio_ponderado'] = round(consolidado['promedio_ponderado'] / creditos_cuenta_total, 2)
     # endregion
     return consolidado
+
+
+def get_consolidado_dummy(codigo, contrasena):
+    with open('test.json', 'r') as f:
+        r = json.load(f)
+    return r

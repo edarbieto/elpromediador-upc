@@ -1,38 +1,298 @@
-{% extends 'base.html' %} {% block title %}
-<title>El Promediador</title>
-{% endblock %} {% block container %}
-<div class="container-fluid d-flex vh-100 vw-100">
-  <div class="row w-100 mx-auto justify-content-center align-self-center">
-    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
-      <div class="card">
-        <div class="card-body">
-          <form action="/notas" method="POST">
-            <h5 class="card-title text-center">Credenciales UPC</h5>
-            <div class="form-group">
-              <label for="codigo">Código</label>
-              <input
-                type="text"
-                name="codigo"
-                id="codigo"
-                class="form-control"
-              />
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="%% url_for('static', filename='css/bootstrap.min.css') %%"
+    />
+    <link
+      rel="stylesheet"
+      href="%% url_for('static', filename='css/sweetalert2.min.css') %%"
+    />
+    <title>El Promediador</title>
+  </head>
+  <body>
+    <div id="app" class="vh-100">
+      <nav class="navbar navbar-dark bg-primary">
+        <a href="/" class="navbar-brand mx-md-0 mx-auto">El Promediador</a>
+        <form class="form-inline mx-md-0 mx-auto" autocomplete="off">
+          <div class="input-group input-group-sm">
+            <input
+              type="text"
+              class="form-control mr-sm-2 mb-sm-0 mb-2"
+              id="codigo"
+              placeholder="Código de alumno UPC"
+              v-model="codigo"
+            />
+          </div>
+          <div class="input-group input-group-sm">
+            <input
+              type="password"
+              class="form-control mr-sm-2 mb-sm-0 mb-2"
+              id="codigo"
+              placeholder="Contraseña"
+              v-model="contrasena"
+            />
+          </div>
+          <button
+            class="btn btn-sm btn-secondary btn-danger mx-sm-0 mx-auto"
+            type="submit"
+            id="btnObtenerNotas"
+            v-on:click="obtenerNotas"
+          >
+            Obtener notas
+          </button>
+        </form>
+      </nav>
+      <div v-if="consolidado">
+        <div class="container">
+          <div class="row my-4 text-light bg-danger p-3 rounded shadow">
+            <div class="col-12 col-sm-8 col-lg-10">
+              <div class="">
+                <h5 class="font-weight-bold" id="nombres">
+                  {{consolidado.nombre}}
+                </h5>
+                <h6 class="font-weight-lighter" id="data">
+                  Carrera: {{consolidado.carrera}}<br />
+                  Ciclo actual: {{idCicloActual}}<br />
+                  Promedio acumulado: {{consolidado.promedio_ponderado}}
+                </h6>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="contrasena">Contraseña</label>
-              <input
-                type="password"
-                name="contrasena"
-                id="contrasena"
-                class="form-control"
-              />
+            <div class="col-12 col-sm-4 col-lg-2">
+              <select
+                class="custom-select my-2 my-md-0"
+                v-model="idCicloActual"
+                v-on:change="seleccionarCiclo"
+              >
+                <option v-for="ciclo in ciclos" :value="ciclo"
+                  >{{ciclo}}</option
+                >
+              </select>
             </div>
-            <button class="btn btn-primary btn-block" id="btnLoginUPC">
-              Obtener notas
-            </button>
-          </form>
+          </div>
+          <div class="row">
+            <div class="col-12 col-md-6">
+              <div class="accordion shadow" id="accordionCursos">
+                <div class="card" v-for="(curso, index) in cicloActual.cursos">
+                  <div class="card-header p-1">
+                    <button
+                      class="btn btn-link text-left"
+                      data-toggle="collapse"
+                      :data-target="`#collapseCurso${index}`"
+                    >
+                      {{curso.nombre}}
+                    </button>
+                  </div>
+                  <div
+                    class="collapse"
+                    :id="`collapseCurso${index}`"
+                    data-parent="#accordionCursos"
+                  >
+                    <div class="card-body p-4">
+                      <div class="table-responsive">
+                        <table
+                          class="table table-sm table-bordered"
+                          style="font-size: 70%;"
+                        >
+                          <thead class="thead-dark">
+                            <tr>
+                              <th>Tipo</th>
+                              <th>Evaluación</th>
+                              <th>N°</th>
+                              <th>Peso</th>
+                              <th>Nota</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="nota in curso.notas">
+                              <td>{{nota.tipo}}</td>
+                              <td>{{nota.evaluacion}}</td>
+                              <td align="center">{{nota.numero}}</td>
+                              <td align="center">
+                                {{(nota.peso * 100) + '%' }}
+                              </td>
+                              <td v-if="nota.obs !== 'P'" align="center">
+                                {{nota.nota}}
+                              </td>
+                              <td v-else align="center">
+                                <div class="input-group input-group-sm">
+                                  <input
+                                    type="text"
+                                    class="form-control mx-auto"
+                                    v-model.number="nota.nota"
+                                    :class="{'is-invalid': !(nota.nota >= 0 && nota.nota <= 20)}"
+                                    style="max-width: 40px; font-size: 90%;"
+                                  />
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                          <thead>
+                            <tr>
+                              <th colspan="4">Promedio</th>
+                              <td align="center" class="font-weight-bold">
+                                {{calcularPromedioCurso(curso)}}
+                              </td>
+                            </tr>
+                          </thead>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+              <div class="card shadow">
+                <div class="card-body">
+                  <h5 class="font-weight-bold text-center">Resumen ciclo</h5>
+                  <div class="table-responsive">
+                    <table
+                      class="table table-sm table-bordered"
+                      style="font-size: 70%;"
+                    >
+                      <thead class="bg-primary text-white">
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Créditos</th>
+                          <th>Promedio</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="curso in cicloActual.cursos">
+                          <td>{{curso.nombre}}</td>
+                          <td align="center">{{curso.creditos}}</td>
+                          <td align="center">{{curso.promedio}}</td>
+                        </tr>
+                      </tbody>
+                      <thead>
+                        <tr>
+                          <th colspan="2">Promedio ponderado</th>
+                          <th align="center" class="text-center">
+                            {{calcularPromedioCiclo(cicloActual)}}
+                          </th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <div class="container">
+          <div class="row justify-content-center my-5">
+            <div class="col d-flex justify-content-center">
+              <div class="card border-primary" style="max-width: 18rem;">
+                <div class="card-body text-primary">
+                  <h5 class="card-title text-center">El Promediador</h5>
+                  <p class="card-text text-justify">
+                    Solo necesitas ingresar tu código de usuario UPC y
+                    contraseña para obtener tus notas y promediarlas
+                    automáticamente.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-{% endblock %}
+    <script src="%% url_for('static', filename='js/jquery-3.4.1.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/popper.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/bootstrap.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/sweetalert2.all.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/vue.js') %%"></script>
+    <script>
+      let codigo = "";
+      let contrasena = "";
+      let idCicloActual = null;
+      let consolidado = null;
+      let cicloActual = null;
+      let ciclos = null;
+      var app = new Vue({
+        el: "#app",
+        data: {
+          codigo,
+          contrasena,
+          consolidado,
+          idCicloActual,
+          cicloActual,
+          ciclos,
+        },
+        methods: {
+          obtenerNotas: function (event) {
+            event.preventDefault();
+            let formData = new URLSearchParams();
+            formData.append("codigo", this.codigo);
+            formData.append("contrasena", this.contrasena);
+            $.ajax({
+              url: "/notas",
+              type: "POST",
+              data: formData,
+              processData: false,
+              beforeSend: () => {
+                swal.fire({
+                  title: "Por favor, espere...",
+                  text: "Extrayendo notas de INTRANET UPC",
+                  icon: "info",
+                  allowOutsideClick: false,
+                  allowEnterKey: false,
+                  allowEscapeKey: false,
+                  showConfirmButton: false,
+                  showCancelButton: false,
+                });
+                swal.showLoading();
+              },
+            }).done((data) => {
+              this.consolidado = data;
+              this.idCicloActual = this.consolidado.ciclo_actual;
+              this.cicloActual = this.consolidado.ciclos.find(
+                (ciclo) => ciclo.id == this.idCicloActual
+              );
+              this.ciclos = this.consolidado.ciclos.map((ciclo) => ciclo.id);
+              swal.close();
+            });
+          },
+          calcularPromedioCurso: function (curso) {
+            if (curso.estado === "RETIRADO") {
+              curso.promedio = "RET";
+              return "RET";
+            }
+            promedio = Math.round(
+              curso.notas.reduce((acc, val) => acc + val.nota * val.peso, 0)
+            );
+            if (isNaN(promedio)) {
+              promedio = 0;
+            }
+            curso.promedio = promedio;
+            return promedio;
+          },
+          calcularPromedioCiclo: function (ciclo) {
+            cursos = ciclo.cursos.filter(
+              (curso) => curso.estado !== "RETIRADO"
+            );
+            a = cursos.reduce(
+              (acc, val) => acc + val.promedio * val.creditos,
+              0
+            );
+            b = cursos.reduce((acc, val) => acc + val.creditos, 0);
+            promedio = Math.round((a / b + Number.EPSILON) * 100) / 100;
+            ciclo.promedio = promedio;
+            return promedio;
+          },
+          seleccionarCiclo: function () {
+            this.cicloActual = this.consolidado.ciclos.find(
+              (ciclo) => ciclo.id == this.idCicloActual
+            );
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
