@@ -77,6 +77,7 @@ def get_consolidado(codigo, contrasena):
             ciclo['total_creditos'] = int(soup.find('span', {'id': 'spnTotalCreditos'}).text.replace(' ', '').replace('\n', '').replace(':', '').strip())
             creditos_cuenta_total += ciclo['total_creditos']
             ciclo['promedio'] = 0.0
+            ciclo['estado'] = 'RETIRADO'
             ciclo['cursos'] = []
             # Iterar por cada curso
             for soup_curso in soup_cursos:
@@ -107,6 +108,10 @@ def get_consolidado(codigo, contrasena):
                         curso['estado'] = 'CURSANDO'
                     curso['promedio'] += nota['peso'] * nota['nota']
                     curso['notas'].append(nota)
+                if curso['estado'] == 'CERRADO' and ciclo['estado'] != 'CURSANDO':
+                    ciclo['estado'] = 'CERRADO'
+                if curso['estado'] == 'CURSANDO':
+                    ciclo['estado'] = 'CURSANDO'
                 # Calcular promedio del curso
                 curso['promedio'] = math.ceil(curso['promedio']) if round(curso['promedio'] % 1, 2) >= 0.45 else math.floor(curso['promedio'])
                 ciclo['promedio'] += curso['promedio'] * curso['creditos']
@@ -119,9 +124,3 @@ def get_consolidado(codigo, contrasena):
     consolidado['promedio_ponderado'] = round(consolidado['promedio_ponderado'] / creditos_cuenta_total, 2)
     # endregion
     return consolidado
-
-
-def get_consolidado_dummy(codigo, contrasena):
-    with open('test.json', 'r', encoding='utf-8') as f:
-        r = json.load(f)
-    return r

@@ -25,9 +25,5 @@ def index():
 def notas():
     codigo = request.form.get('codigo')
     contrasena = request.form.get('contrasena')
-    print(codigo, contrasena)
-    # consolidado = scraper.get_consolidado(codigo, contrasena)
-    consolidado = scraper.get_consolidado_dummy(codigo, contrasena)
-    time.sleep(2)    
-    print(consolidado['nombre'])
+    consolidado = scraper.get_consolidado(codigo, contrasena)
     return jsonify(consolidado)
