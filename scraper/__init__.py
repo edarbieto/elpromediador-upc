@@ -17,7 +17,7 @@ def get_consolidado(codigo, contrasena):
     # Sesion
     session = cfscrape.create_scraper()
     # Pasar CF Challengue
-    # session.get(URL_UPC_INTRANET)
+    session.get(URL_UPC_INTRANET)
     # Obtener cookies de sesion UPC
     session.get(URL_UPC_INTRANET_LOGIN)
     payload = {
@@ -44,10 +44,9 @@ def get_consolidado(codigo, contrasena):
     soup = BeautifulSoup(html.text, features='html.parser')
     # Construir consolidado
     consolidado = {}
-    consolidado['codigo'] = codigo
+    consolidado['codigo'] = codigo.lower()
     consolidado['nombre'] = soup.find('span', {'id': 'spnAlumno_MatriculaActual1'}).text.replace('\n', '').strip().split('-')[1].strip()
     consolidado['carrera'] = soup.find('span', {'id': 'spnTipoIngreso'}).text.replace(':', '').replace('\n', '').strip()
-    consolidado['promedio_ponderado'] = 0.0
     consolidado['ciclo_actual'] = int(soup.find('span', {'id': 'spnCiclo'}).text.replace(':', '').replace('\n', '').strip())
     consolidado['ciclos'] = []
     creditos_cuenta_total = 0
@@ -76,7 +75,6 @@ def get_consolidado(codigo, contrasena):
             ciclo['total_cursos'] = int(soup.find('span', {'id': 'spnNumAsignaturas'}).text.replace(' ', '').replace('\n', '').replace(':', '').strip())
             ciclo['total_creditos'] = int(soup.find('span', {'id': 'spnTotalCreditos'}).text.replace(' ', '').replace('\n', '').replace(':', '').strip())
             creditos_cuenta_total += ciclo['total_creditos']
-            ciclo['promedio'] = 0.0
             ciclo['estado'] = 'RETIRADO'
             ciclo['cursos'] = []
             # Iterar por cada curso
@@ -86,7 +84,6 @@ def get_consolidado(codigo, contrasena):
                 curso['codigo'] = soup_curso.find('tr').findAll('td')[1].text.replace(' ', '').replace('\n', '').strip()
                 curso['nombre'] = soup_curso.findAll('tr')[2].findAll('td')[1].text.replace('\n', '').strip()
                 curso['creditos'] = int(soup_curso.findAll('tr')[2].findAll('td')[3].text.replace(' ', '').replace('\n', '').strip())
-                curso['promedio'] = 0.0
                 curso['estado'] = 'CERRADO'
                 curso['notas'] = []
                 soup_notas = soup_curso.findAll('tr')[5:-1]
@@ -106,21 +103,19 @@ def get_consolidado(codigo, contrasena):
                         curso['estado'] = 'RETIRADO'
                     if nota['obs'] == 'P':
                         curso['estado'] = 'CURSANDO'
-                    curso['promedio'] += nota['peso'] * nota['nota']
                     curso['notas'].append(nota)
                 if curso['estado'] == 'CERRADO' and ciclo['estado'] != 'CURSANDO':
                     ciclo['estado'] = 'CERRADO'
                 if curso['estado'] == 'CURSANDO':
                     ciclo['estado'] = 'CURSANDO'
-                # Calcular promedio del curso
-                curso['promedio'] = math.ceil(curso['promedio']) if round(curso['promedio'] % 1, 2) >= 0.45 else math.floor(curso['promedio'])
-                ciclo['promedio'] += curso['promedio'] * curso['creditos']
                 ciclo['cursos'].append(curso)
-            # Calcular promedio del ciclo
-            ciclo['promedio'] = round(ciclo['promedio'] / ciclo['total_creditos'], 2)
-            consolidado['promedio_ponderado'] += ciclo['promedio'] * ciclo['total_creditos']
             consolidado['ciclos'].append(ciclo)
-    # Calcular promedio ponderado acumulado
-    consolidado['promedio_ponderado'] = round(consolidado['promedio_ponderado'] / creditos_cuenta_total, 2)
     # endregion
     return consolidado
+
+
+# TODO Eliminar
+def get_consolidado_dummy(codigo, contrasena):
+    with open('debug/debug.json', 'r', encoding='utf8') as f:
+        r = json.load(f)
+    return r

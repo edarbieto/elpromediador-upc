@@ -16,6 +16,10 @@
       href="%% url_for('static', filename='css/fontawesome.min.css') %%"
     />
     <link
+      rel="stylesheet"
+      href="%% url_for('static', filename='css/animate.min.css') %%"
+    />
+    <link
       rel="shortcut icon"
       href="%% url_for('static', filename='img/logo.png') %%"
       type="image/x-icon"
@@ -75,7 +79,7 @@
       </nav>
       <div v-if="consolidado" class="container">
         <div
-          class="row my-4 align-items-center text-light bg-danger p-3 rounded shadow"
+          class="row my-4 align-items-center text-light bg-danger p-3 rounded shadow animated zoomIn faster"
         >
           <div class="col-12 col-sm-8 col-lg-10">
             <div class="">
@@ -85,7 +89,8 @@
               <h6 class="font-weight-lighter" id="data">
                 Carrera: {{consolidado.carrera}}<br />
                 Ciclo actual: {{idCicloActual}}<br />
-                Promedio acumulado: {{consolidado.promedio}}
+                Promedio acumulado: {{consolidado.promedio}}<br />
+                Promedio acumulado actual: {{calcularPromedioAcumuladoActual()}}
               </h6>
             </div>
           </div>
@@ -106,9 +111,17 @@
         </div>
         <div class="row">
           <div class="col-12 col-md-6">
-            <div class="accordion shadow mb-4" id="accordionCursos">
-              <div class="card" v-for="(curso, index) in cicloActual.cursos">
-                <div class="card-header p-1">
+            <div
+              class="accordion shadow mb-4 animated zoomIn faster"
+              id="accordionCursos"
+              v-bind:key="idCiclo + 'CURSOS'"
+            >
+              <div
+                class="card"
+                v-for="(curso, index) in cicloActual.cursos"
+                v-bind:key="idCiclo + curso.codigo"
+              >
+                <div class="card-header p-1 animated fadeIn">
                   <button
                     class="btn btn-block btn-link text-left"
                     data-toggle="collapse"
@@ -178,8 +191,11 @@
             </div>
           </div>
           <div class="col-12 col-md-6">
-            <div class="card shadow mb-4">
-              <div class="card-body">
+            <div
+              class="card shadow mb-4 animated zoomIn faster"
+              v-bind:key="idCiclo + 'RESUMEN'"
+            >
+              <div class="card-body animated fadeIn">
                 <h5 class="font-weight-bold text-center">Resumen ciclo</h5>
                 <div class="table-responsive">
                   <table
@@ -218,7 +234,10 @@
       <div v-else class="container">
         <div class="row justify-content-center my-5">
           <div class="col d-flex justify-content-center">
-            <div class="card border-primary" style="max-width: 20em;">
+            <div
+              class="card border-primary animated zoomIn faster"
+              style="max-width: 20em;"
+            >
               <div class="card-body text-primary">
                 <h5
                   class="card-title text-center"
@@ -296,7 +315,7 @@
                   html: `Extrayendo notas de INTRANET UPC
                     <br>
                     <br>
-                    Esto puede tomar entre 30 y 60 segundos`,
+                    Esto puede tomar 1 o 2 minutos`,
                   icon: "info",
                   allowOutsideClick: false,
                   allowEnterKey: false,
@@ -363,8 +382,6 @@
             );
             b = cursos.reduce((acc, val) => acc + val.creditos, 0);
             promedio = Math.round((a / b + Number.EPSILON) * 100) / 100;
-            console.log(a, b, promedio);
-            console.log(cursos);
             this.consolidado.promedio = promedio;
           },
           seleccionarCiclo: function () {
@@ -376,7 +393,7 @@
             swal.fire({
               title: "El Promediador",
               html: `Hecho por y para alumnos de la UPC
-                <br>
+                <br><br>
                 Contacto y sugerencias a <a href="mailto:edarbieto@gmail.com">edarbieto@gmail.com</a>`,
               icon: "question",
               iconHtml: `<img
@@ -385,6 +402,19 @@
                     width="50px"
                   />`,
             });
+          },
+          calcularPromedioAcumuladoActual: function () {
+            cursos = this.consolidado.ciclos
+              .filter((ciclo) => ciclo.estado !== "RETIRADO")
+              .flatMap((ciclo) => ciclo.cursos)
+              .filter((curso) => curso.estado !== "RETIRADO");
+            a = cursos.reduce(
+              (acc, val) => acc + val.promedio * val.creditos,
+              0
+            );
+            b = cursos.reduce((acc, val) => acc + val.creditos, 0);
+            promedio = Math.round((a / b + Number.EPSILON) * 100) / 100;
+            return promedio;
           },
         },
       });
