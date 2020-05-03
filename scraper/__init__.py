@@ -56,7 +56,6 @@ def get_consolidado(codigo, contrasena):
     for anio in range(anio_ingreso, anio_actual + 1):
         for mes in range(3):
             periodo = anio * 100 + mes
-            print(periodo)
             # Obtener notas por por periodo
             html = session.post(URL_UPC_INTRANET_NOTAS_PERIODO, data={'CodPeriodo': periodo})
             soup = BeautifulSoup(html.text, features='html.parser')

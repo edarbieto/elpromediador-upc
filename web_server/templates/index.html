@@ -74,7 +74,7 @@
           class="btn btn-sm btn-warning mx-auto mx-md-0 ml-md-2 mt-2 mt-sm-0"
           v-on:click="mostrarInfo"
         >
-          <i class="fas fa-info-circle"></i>
+          <i class="fas fa-question"></i>
         </button>
       </nav>
       <div v-if="consolidado" class="container">
@@ -170,6 +170,7 @@
                                   v-model.number="nota.nota"
                                   :class="{'is-invalid': !(nota.nota >= 0 && nota.nota <= 20)}"
                                   style="max-width: 40px; font-size: 90%;"
+                                  onclick="this.setSelectionRange(0, this.value.length)"
                                 />
                               </div>
                             </td>
@@ -250,7 +251,15 @@
                   para obtener tus notas y promediarlas automáticamente.
                   <br />
                   <br />
-                  Más información en el botón amarillo superior
+                  Información de contacto en el botón interrogante amarillo
+                  superior
+                  <br />
+                  <br />
+                  <strong
+                    >NOTA: Está aplicación sirve como puente a SOCRATES UPC, por
+                    lo que aplican las mismas restricciones (máx. 3 intentos
+                    fallidos por ejemplo)</strong
+                  >
                 </p>
               </div>
             </div>
@@ -301,6 +310,22 @@
         methods: {
           obtenerNotas: function (event) {
             event.preventDefault();
+            if (!this.codigo || !this.contrasena) {
+              swal.fire({
+                title: "😑",
+                html: `Debes completar los campos de código UPC y contraseña`,
+                icon: "error",
+              });
+              return;
+            }
+            if (!this.codigo.match(/u.{9}/i)) {
+              swal.fire({
+                title: "😑",
+                html: `Debes utilizar un código UPC válido`,
+                icon: "error",
+              });
+              return;
+            }
             let formData = new URLSearchParams();
             formData.append("codigo", this.codigo);
             formData.append("contrasena", this.contrasena);
@@ -312,10 +337,10 @@
               beforeSend: () => {
                 swal.fire({
                   title: "Por favor, espere...",
-                  html: `Extrayendo notas de INTRANET UPC
+                  html: `Extrayendo notas de SOCRATES UPC
                     <br>
                     <br>
-                    Esto puede tomar 1 o 2 minutos`,
+                    Esto puede tomar hasta 3 minutos aprox.`,
                   icon: "info",
                   allowOutsideClick: false,
                   allowEnterKey: false,
@@ -325,19 +350,63 @@
                 });
                 swal.showLoading();
               },
-            }).done((data) => {
-              this.consolidado = data;
-              this.idCicloActual = this.consolidado.ciclo_actual;
-              this.idCiclo = this.idCicloActual;
-              this.cicloActual = this.consolidado.ciclos.find(
-                (ciclo) => ciclo.id == this.idCiclo
-              );
-              this.ciclos = this.consolidado.ciclos
-                .map((ciclo) => ciclo.id)
-                .reverse();
-              this.calcularPromedioAcumulado();
-              swal.close();
-            });
+            })
+              .done(async (data) => {
+                if (data.consolidado) {
+                  this.consolidado = data.consolidado;
+                  this.idCicloActual = this.consolidado.ciclo_actual;
+                  this.idCiclo = this.idCicloActual;
+                  this.cicloActual = this.consolidado.ciclos.find(
+                    (ciclo) => ciclo.id == this.idCiclo
+                  );
+                  this.ciclos = this.consolidado.ciclos
+                    .map((ciclo) => ciclo.id)
+                    .reverse();
+                  this.calcularPromedioAcumulado();
+                  swal.close();
+                } else {
+                  swal.close();
+                  await swal.fire({
+                    title: "Oops...",
+                    html: `No se pudo acceder ni obtener las notas de SOCRATES UPC
+                    <br>
+                    <br>
+                    Revisa tus datos y la disponibilidad de SOCRATES UPC
+                    <br>
+                    <br>
+                    Agradecería que me notifiques de este error enviando tu codigo UPC y la hora aproximada de tu consulta en un correo a <a href="mailto:edarbieto@gmail.com">edarbieto@gmail.com</a>
+                    <br>
+                    <br>
+                    <strong>NOTA: No olvides que luego de 3 intentos fallidos de acceso a los servicios de la UPC, se bloqueará tu cuenta.
+                    No es responsabilidad de esta página, ya que solo es un puente al mismo SOCRATES UPC</strong>`,
+                    icon: "error",
+                  });
+                }
+                if (data.db_status === "ERROR") {
+                  swal.fire({
+                    title: "😂",
+                    html: `LOL, no pudimos registrar tu consulta en el historial (esto es ajeno a la obtención de notas y opcional)
+                    <br>
+                    <br>
+                    Agradecería que me notifiques de esta alerta enviando tu codigo UPC y la hora aproximada de tu consulta en un correo a <a href="mailto:edarbieto@gmail.com">edarbieto@gmail.com</a>`,
+                    icon: "warning",
+                  });
+                }
+              })
+              .fail((error) => {
+                swal.close();
+                swal.fire({
+                  title: "Sad 😨",
+                  html: `Ocurrió un error interno o no pudiste conectar con nuestro servidor
+                  <br>
+                  <br>
+                  Revisa tu conectividad y refresca la página
+                  <br>
+                  <br>
+                  Agradecería que me notifiques de este error enviando tu codigo UPC y la hora aproximada de tu consulta en un correo a <a href="mailto:edarbieto@gmail.com">edarbieto@gmail.com</a>`,
+                  icon: "error",
+                });
+              });
           },
           calcularPromedioCurso: function (curso) {
             if (curso.estado === "RETIRADO") {
