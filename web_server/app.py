@@ -28,8 +28,6 @@ db_config = {
     'host': os.getenv('MYSQL_HOST')
 }
 
-print(db_config)
-
 
 @app.route('/')
 def index():
@@ -50,7 +48,7 @@ def notas():
         data_consulta['NOMBRE'] = consolidado['nombre']
         data_consulta['CARRERA'] = consolidado['carrera']
         data_consulta['OBS'] = None
-    except Exception as e:
+    except:
         data_consulta['RESULTADO'] = 0
         data_consulta['NOMBRE'] = None
         data_consulta['CARRERA'] = None
