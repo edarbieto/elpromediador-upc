@@ -111,10 +111,3 @@ def get_consolidado(codigo, contrasena):
             consolidado['ciclos'].append(ciclo)
     # endregion
     return consolidado
-
-
-# TODO Eliminar
-def get_consolidado_dummy(codigo, contrasena):
-    with open('debug/debug.json', 'r', encoding='utf8') as f:
-        r = json.load(f)
-    return r

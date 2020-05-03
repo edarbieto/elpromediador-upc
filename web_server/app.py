@@ -45,7 +45,7 @@ def notas():
     data_consulta['FECHA_HORA_INICIO'] = datetime.datetime.now()
     consolidado = None
     try:
-        consolidado = scraper.get_consolidado_dummy(codigo, contrasena)
+        consolidado = scraper.get_consolidado(codigo, contrasena)
         data_consulta['RESULTADO'] = 1
         data_consulta['NOMBRE'] = consolidado['nombre']
         data_consulta['CARRERA'] = consolidado['carrera']
