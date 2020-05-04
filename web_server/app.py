@@ -49,12 +49,13 @@ def notas():
         data_consulta['CARRERA'] = consolidado['carrera']
         data_consulta['OBS'] = None
     except Exception as e:
+        print(e)
         data_consulta['RESULTADO'] = 0
         data_consulta['NOMBRE'] = None
         data_consulta['CARRERA'] = None
         data_consulta['OBS'] = e
     data_consulta['FECHA_HORA_FIN'] = datetime.datetime.now()
-    data_consulta['IP'] = request.remote_addr
+    data_consulta['IP'] = request.environ['HTTP_X_REAL_IP']
     add_consulta = ("""
     INSERT INTO CONSULTA
     (CODIGO_UPC, FECHA_HORA_INICIO, FECHA_HORA_FIN, IP, RESULTADO, NOMBRE, CARRERA, OBS)
@@ -68,6 +69,7 @@ def notas():
         conn.commit()
         cur.close()
         conn.close()
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({'db_status': 'ERROR', 'consolidado': consolidado})
     return jsonify({'db_status': 'OK', 'consolidado': consolidado})
