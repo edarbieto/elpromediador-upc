@@ -62,11 +62,12 @@ def get_consolidado(codigo, contrasena):
             # Validar que se matriculo en el ciclo
             if not soup.find('span', {'id': 'spnCiclo'}):
                 continue
-            cursos_count = int(soup.find('span', {'id': 'spnNumAsignaturas'}).text.replace(' ', '').replace('\n', '').strip().replace(':', ''))
+            # cursos_count = int(soup.find('span', {'id': 'spnNumAsignaturas'}).text.replace(' ', '').replace('\n', '').strip().replace(':', ''))
             soup_cursos = soup.findAll('table', {'width': '100%'})
+            cursos_count = len(soup_cursos)
             # Validar scrapping anterior que sea correcto (numero de cursos)
-            if cursos_count != len(soup_cursos):
-                raise Exception('El numero de cursos no coincide con el HTML')
+            # if cursos_count != len(soup_cursos):
+                # raise Exception('El numero de cursos no coincide con el HTML')
             # Construir ciclo
             ciclo = {}
             ciclo['id'] = int(periodo)
