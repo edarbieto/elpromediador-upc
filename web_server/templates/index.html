@@ -30,6 +30,7 @@
         src: url(%%url_for("static", filename= "font/Russian.ttf")%%);
       }
     </style>
+    <script src="%% url_for('static', filename='js/vue.js') %%"></script>
     <title>El Promediador</title>
   </head>
   <body>
@@ -283,11 +284,6 @@
         </div>
       </footer>
     </div>
-    <script src="%% url_for('static', filename='js/vue.js') %%"></script>
-    <script src="%% url_for('static', filename='js/jquery-3.4.1.min.js') %%"></script>
-    <script src="%% url_for('static', filename='js/popper.min.js') %%"></script>
-    <script src="%% url_for('static', filename='js/bootstrap.min.js') %%"></script>
-    <script src="%% url_for('static', filename='js/sweetalert2.all.min.js') %%"></script>
     <script>
       let codigo = "";
       let contrasena = "";
@@ -488,5 +484,9 @@
         },
       });
     </script>
+    <script src="%% url_for('static', filename='js/jquery-3.4.1.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/popper.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/bootstrap.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/sweetalert2.all.min.js') %%"></script>
   </body>
 </html>
