@@ -55,7 +55,7 @@ def notas():
         data_consulta['CARRERA'] = None
         data_consulta['OBS'] = e
     data_consulta['FECHA_HORA_FIN'] = datetime.datetime.now()
-    data_consulta['IP'] = request.environ['HTTP_X_REAL_IP'].split(',')[0]
+    data_consulta['IP'] = request.environ['HTTP_X_REAL_IP'].split(',')[0] if 'HTTP_X_REAL_IP' in request.environ else request.remote_addr
     add_consulta = ("""
     INSERT INTO CONSULTA
     (CODIGO_UPC, FECHA_HORA_INICIO, FECHA_HORA_FIN, IP, RESULTADO, NOMBRE, CARRERA, OBS)

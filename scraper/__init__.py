@@ -1,5 +1,5 @@
 import requests
-import scraper.cfscrape as cfscrape
+import cloudscraper as scraper
 import math
 import json
 from bs4 import BeautifulSoup
@@ -15,7 +15,7 @@ URL_UPC_INTRANET_NOTAS_PERIODO = 'https://matricula.upc.edu.pe/ConsultaNotas/Cur
 def get_consolidado(codigo, contrasena):
     # region Login UPC
     # Sesion
-    session = cfscrape.create_scraper(delay=10)
+    session = scraper.create_scraper(delay=10)
     # Pasar CF Challengue
     session.get(URL_UPC_INTRANET)
     # Obtener cookies de sesion UPC
