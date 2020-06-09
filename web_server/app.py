@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-import mysql.connector
+import sqlite3
 import scraper
 import datetime
 import time
@@ -59,15 +59,14 @@ def notas():
     add_consulta = ("""
     INSERT INTO CONSULTA
     (CODIGO_UPC, FECHA_HORA_INICIO, FECHA_HORA_FIN, IP, RESULTADO, NOMBRE, CARRERA, OBS)
-    VALUES (%(CODIGO_UPC)s, %(FECHA_HORA_INICIO)s, %(FECHA_HORA_FIN)s, %(IP)s, %(RESULTADO)s, %(NOMBRE)s, %(CARRERA)s, %(OBS)s)
+    VALUES (:CODIGO_UPC, :FECHA_HORA_INICIO, :FECHA_HORA_FIN, :IP, :RESULTADO, :NOMBRE, :CARRERA, :OBS)
     """)
     error_db = None
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = sqlite3.connect('web.db')
         cur = conn.cursor()
         cur.execute(add_consulta, data_consulta)
         conn.commit()
-        cur.close()
         conn.close()
     except Exception as e:
         print(e)
