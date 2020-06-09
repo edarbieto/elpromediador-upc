@@ -1,12 +1,8 @@
 from flask import Flask, render_template, request, jsonify
-from dotenv import load_dotenv
 import sqlite3
 import scraper
 import datetime
 import time
-import os
-
-load_dotenv()
 
 app = Flask(__name__)
 
@@ -20,13 +16,6 @@ m_jinja_options.update(dict(
     comment_end_string='#>',
 ))
 app.jinja_options = m_jinja_options
-
-db_config = {
-    'database': os.getenv('MYSQL_DB'),
-    'user': os.getenv('MYSQL_USER'),
-    'password': os.getenv('MYSQL_PASS'),
-    'host': os.getenv('MYSQL_HOST')
-}
 
 
 @app.route('/')
