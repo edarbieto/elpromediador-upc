@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="%% url_for('static', filename='css/bootstrap.min.css') %%"
+    />
+    <link
+      rel="stylesheet"
+      href="%% url_for('static', filename='css/fontawesome.min.css') %%"
+    />
+    <link
+      rel="stylesheet"
+      href="%% url_for('static', filename='css/animate.min.css') %%"
+    />
+    <link
+      rel="stylesheet"
+      href="%% url_for('static', filename='css/Chart.min.css') %%"
+    />
+    <link
+      rel="shortcut icon"
+      href="%% url_for('static', filename='img/logo.png') %%"
+      type="image/x-icon"
+    />
+    <script src="%% url_for('static', filename='js/vue.js') %%"></script>
+    <title>El Promediador</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="container-fluid">
+        <div class="row bg-secondary text-white">
+          <div class="col-12 text-center">
+            <h1 class="font-weight-bold my-3">Dashboard</h1>
+          </div>
+        </div>
+        <div class="row my-3">
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card bg-primary text-white m-2" style="height: 200px;">
+              <div
+                class="card-body text-center d-flex flex-column justify-content-center"
+              >
+                <h5 class="card-title">Visitas</h5>
+                <h1 class="card-text font-weight-bold">{{visitas}}</h1>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card bg-danger text-white m-2" style="height: 200px;">
+              <div
+                class="card-body text-center d-flex flex-column justify-content-center"
+              >
+                <h5 class="card-title">Consultas</h5>
+                <h1 class="card-text font-weight-bold">{{consultas}}</h1>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card bg-warning text-dark m-2" style="height: 200px;">
+              <div
+                class="card-body text-center d-flex flex-column justify-content-center"
+              >
+                <h5 class="card-title">Alumnos</h5>
+                <h1 class="card-text font-weight-bold">{{alumnos}}</h1>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card m-2" style="height: 200px;">
+              <div
+                class="card-body bg-success text-white text-center d-flex flex-column justify-content-center"
+              >
+                <h5 class="card-title">Tiempo promedio</h5>
+                <h1 class="card-text font-weight-bold">{{tiempoPromedio}}s</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-12">
+            <canvas class="m-2" id="pieCarreras"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="%% url_for('static', filename='js/jquery-3.4.1.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/popper.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/bootstrap.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/Chart.bundle.min.js') %%"></script>
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {
+          visitas: 0,
+          consultas: 0,
+          alumnos: 0,
+          tiempoPromedio: 0,
+          carreras: [],
+          cuentaCarreras: [],
+          colorCarreras: [],
+        },
+        methods: {
+          obtenerEstadisticas() {
+            return $.ajax({
+              url: "/estadisticas",
+              type: "POST",
+            });
+          },
+          createPieCart(chartId, chartData) {
+            const ctx = document.getElementById(chartId);
+            const mChart = new Chart(ctx, {
+              type: chartData.type,
+              data: {
+                datasets: [
+                  {
+                    data: chartData.data,
+                    backgroundColor: chartData.colors,
+                  },
+                ],
+                labels: chartData.labels,
+              },
+            });
+          },
+        },
+        async created() {
+          let data = await this.obtenerEstadisticas();
+          if (data.db_error) return;
+          this.visitas = data.visitas;
+          this.consultas = data.consultas;
+          this.alumnos = data.alumnos;
+          this.tiempoPromedio = data.tiempo_promedio;
+          for (key in data.carreras) {
+            this.carreras.push(key);
+            this.cuentaCarreras.push(data.carreras[key]);
+            this.colorCarreras.push(
+              "#" + ((Math.random() * 0xffffff) << 0).toString(16)
+            );
+          }
+          chartData = {}
+          chartData.type = "pie"
+          chartData.data = this.cuentaCarreras
+          chartData.colors = this.colorCarreras
+          chartData.labels = this.carreras
+          this.createPieCart("pieCarreras", chartData)
+        },
+      });
+    </script>
+  </body>
+</html>

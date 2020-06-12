@@ -3,4 +3,4 @@ import logging
 
 if __name__ == "__main__":
     logging.basicConfig(filename='LOGFILE', level=logging.DEBUG)
-    app.run()
+    app.run(debug=True)
