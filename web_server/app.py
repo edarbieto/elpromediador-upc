@@ -101,10 +101,8 @@ def estadisticas():
         WHERE RESULTADO = 1
         GROUP BY CARRERA
         ORDER BY 2 DESC
+        LIMIT 10
         """).fetchall()
-        dict_carreras = {}
-        for carrera in carreras:
-            dict_carreras[carrera[0]] = carrera[1]
         conn.commit()
         conn.close()
         return jsonify({
@@ -112,7 +110,7 @@ def estadisticas():
             'consultas': consultas,
             'alumnos': alumnos,
             'tiempo_promedio': tiempo_promedio,
-            'carreras': dict_carreras
+            'carreras': carreras
         })
     except Exception as e:
         print(e)

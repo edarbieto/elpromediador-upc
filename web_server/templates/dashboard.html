@@ -79,7 +79,10 @@
         </div>
         <div class="row mb-3">
           <div class="col-12">
-            <canvas class="m-2" id="pieCarreras"></canvas>
+            <h5 class="text-center font-weight-bold">
+              Número de consultas por carrera
+            </h5>
+            <canvas class="m-2" id="carreras"></canvas>
           </div>
         </div>
       </div>
@@ -88,8 +91,9 @@
     <script src="%% url_for('static', filename='js/popper.min.js') %%"></script>
     <script src="%% url_for('static', filename='js/bootstrap.min.js') %%"></script>
     <script src="%% url_for('static', filename='js/Chart.bundle.min.js') %%"></script>
+    <script src="%% url_for('static', filename='js/chartjs-plugin-datalabels.min.js') %%"></script>
     <script>
-      var app = new Vue({
+      let app = new Vue({
         el: "#app",
         data: {
           visitas: 0,
@@ -97,8 +101,7 @@
           alumnos: 0,
           tiempoPromedio: 0,
           carreras: [],
-          cuentaCarreras: [],
-          colorCarreras: [],
+          conteo: [],
         },
         methods: {
           obtenerEstadisticas() {
@@ -111,15 +114,9 @@
             const ctx = document.getElementById(chartId);
             const mChart = new Chart(ctx, {
               type: chartData.type,
-              data: {
-                datasets: [
-                  {
-                    data: chartData.data,
-                    backgroundColor: chartData.colors,
-                  },
-                ],
-                labels: chartData.labels,
-              },
+              data: chartData.data,
+              options: chartData.options,
+              plugins: [ChartDataLabels],
             });
           },
         },
@@ -130,19 +127,50 @@
           this.consultas = data.consultas;
           this.alumnos = data.alumnos;
           this.tiempoPromedio = data.tiempo_promedio;
-          for (key in data.carreras) {
-            this.carreras.push(key);
-            this.cuentaCarreras.push(data.carreras[key]);
-            this.colorCarreras.push(
-              "#" + ((Math.random() * 0xffffff) << 0).toString(16)
-            );
+          for (carrera of data.carreras) {
+            this.carreras.push(carrera[0]);
+            this.conteo.push(carrera[1]);
           }
-          chartData = {}
-          chartData.type = "pie"
-          chartData.data = this.cuentaCarreras
-          chartData.colors = this.colorCarreras
-          chartData.labels = this.carreras
-          this.createPieCart("pieCarreras", chartData)
+          chartData = {};
+          chartData.type = "horizontalBar";
+          chartData.data = {
+            datasets: [
+              {
+                data: this.conteo,
+                backgroundColor: [
+                  "#00429d",
+                  "#194d9d",
+                  "#25589c",
+                  "#2d639b",
+                  "#326e9a",
+                  "#36799a",
+                  "#398498",
+                  "#3b9097",
+                  "#3b9b96",
+                  "#3aa794",
+                ],
+              },
+            ],
+            labels: this.carreras,
+          };
+          chartData.options = {
+            legend: null,
+            plugins: {
+              datalabels: {
+                color: "#ffffff",
+              },
+            },
+            scales: {
+              xAxes: [
+                {
+                  ticks: {
+                    beginAtZero: true,
+                  },
+                },
+              ],
+            },
+          };
+          this.createPieCart("carreras", chartData);
         },
       });
     </script>
